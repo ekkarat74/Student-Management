@@ -27,25 +27,20 @@ public class DataManager {
         try (Scanner sc = new Scanner(f, StandardCharsets.UTF_8)) {
             while (sc.hasNextLine()) {
                 String[] d = sc.nextLine().split(",");
-                 // ⭐️⭐️⭐️ (จุดที่แก้ไข) ⭐️⭐️⭐️
                 if (d.length >= 9) {
-                     // ⭐️ แก้ไข: เรียกใช้ 11-arg constructor (ตัด d[8] ที่เป็น dateAdded ออก)
                      list.add(new Student(d[0], d[1], "N/A", "N/A", d[5], "N/A", 
                                           Integer.parseInt(d[2]), Double.parseDouble(d[3]),
                                           Integer.parseInt(d[6].replace("+", "")),
                                           StudentStatus.valueOf(d[7]), d[4]));
                 } else if (d.length >= 7) {
-                    // ⭐️ แก้ไข: เรียกใช้ 11-arg constructor (ตัด d[6] ที่เป็น dateAdded ออก)
                      list.add(new Student(d[0], d[1], "N/A", "N/A", d[5], "N/A", 
                                           Integer.parseInt(d[2]), Double.parseDouble(d[3]),
                                           1, StudentStatus.ENROLLED, d[4]));
                 } else if (d.length >= 5) {
-                    // ⭐️ (โค้ดนี้ถูกต้องอยู่แล้ว)
                      list.add(new Student(d[0], d[1], "N/A", "N/A", "N/A", "N/A", 
                                           Integer.parseInt(d[2]), Double.parseDouble(d[3]),
                                           1, StudentStatus.ENROLLED, d[4]));
                 }
-                // ⭐️⭐️⭐️ (จบจุดที่แก้ไข) ⭐️⭐️⭐️
             }
         } catch (Exception e) { e.printStackTrace(); return null; }
         return list;
@@ -98,12 +93,7 @@ public class DataManager {
                     int year = Integer.parseInt(getText.apply(e, "year").equals("N/A") ? "1" : getText.apply(e, "year").replace("+", ""));
                     StudentStatus status = StudentStatus.valueOf(getText.apply(e, "status").equals("N/A") ? "ENROLLED" : getText.apply(e, "status"));
                     String major = getText.apply(e, "major");
-                    String date = getText.apply(e, "dateAdded"); // ⭐️ เราดึง date มา แต่...
-                    
-                    // ⭐️⭐️⭐️ (จุดที่แก้ไข) ⭐️⭐️⭐️
-                    // ⭐️ แก้ไข: เรียกใช้ 11-arg constructor (ตัด date ที่เพิ่งดึงมา ออก)
                     list.add(new Student(id, name, address, phone, email, photoPath, age, gpa, year, status, major));
-                    // ⭐️⭐️⭐️ (จบจุดที่แก้ไข) ⭐️⭐️⭐️
                 }
             }
         } catch (Exception e) { e.printStackTrace(); return null; }

@@ -4,15 +4,21 @@ import java.awt.GridBagConstraints; // ⭐️ (ใหม่)
 import java.awt.GridBagLayout; // ⭐️ (ใหม่)
 import java.awt.Insets; // ⭐️ (ใหม่)
 import java.util.ArrayList;
+import javax.swing.BorderFactory;
 import javax.swing.JButton; // ⭐️ (ใหม่)
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane; // ⭐️ (ใหม่)
+import javax.swing.JMenu;         // ⭐️ (เพิ่ม)
+import javax.swing.JMenuBar;      // ⭐️ (เพิ่ม)
+import javax.swing.JMenuItem;     // ⭐️ (เพิ่ม)
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea; // ⭐️ (ใหม่)
 import javax.swing.JTextField; // ⭐️ (ใหม่)
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JTable;
@@ -20,14 +26,19 @@ import javax.swing.JTable;
 public class TeacherPortalGUI extends JFrame {
 
     private String currentUsername;
-    private Role currentUserRole;
     private DatabaseManager dbManager;
     private Teacher currentTeacher;
     private DefaultTableModel homeroomModel;
     private JTable homeroomTable;
 
+    private DefaultTableModel gradebookCourseModel;
+    private JTable gradebookCourseTable;
+    private DefaultTableModel gradebookStudentModel;
+    private JTable gradebookStudentTable;
+    private ArrayList<Subject> teacherSubjects; // ⭐️ (เพิ่ม) เก็บวิชาที่สอน
+    private ArrayList<EnrollmentRecord> currentSubjectEnrollments;
+
     public TeacherPortalGUI(Role role, String username) {
-        this.currentUserRole = role;
         this.currentUsername = username;
         this.dbManager = new DatabaseManager();
 
@@ -39,6 +50,8 @@ public class TeacherPortalGUI extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        setJMenuBar(createMenuBar());
+
         JPanel headerPanel = new JPanel();
         headerPanel.setBorder(new EmptyBorder(10, 15, 10, 15));
         JLabel welcomeLabel = new JLabel("Welcome, " + (currentTeacher != null ? currentTeacher.name : username));
@@ -48,12 +61,111 @@ public class TeacherPortalGUI extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("📋 My Homeroom", createHomeroomTab());
+        tabbedPane.addTab("📚 My Gradebook", createGradebookTab());
         tabbedPane.addTab("🗓️ Request Leave", createLeaveRequestTab()); // ⭐️ (ใหม่)
         
         add(tabbedPane, BorderLayout.CENTER);
 
         loadHomeroomStudents();
+        loadTeacherCourses();
         setVisible(true);
+    }
+
+    private JPanel createGradebookTab() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        gradebookCourseModel = new DefaultTableModel(new Object[]{"ID", "Course Name", "Semester"}, 0);
+        gradebookCourseTable = new JTable(gradebookCourseModel);
+        gradebookCourseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        gradebookStudentModel = new DefaultTableModel(new Object[]{"Student ID", "Student Name", "Current Grade"}, 0);
+        gradebookStudentTable = new JTable(gradebookStudentModel);
+        gradebookStudentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane courseScrollPane = new JScrollPane(gradebookCourseTable);
+        courseScrollPane.setBorder(BorderFactory.createTitledBorder("My Courses"));
+
+        JScrollPane studentScrollPane = new JScrollPane(gradebookStudentTable);
+        studentScrollPane.setBorder(BorderFactory.createTitledBorder("Enrolled Students"));
+        
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, courseScrollPane, studentScrollPane);
+        splitPane.setDividerLocation(200);
+        panel.add(splitPane, BorderLayout.CENTER);
+
+        JButton manageGradesButton = new JButton("Manage Scores / Set Final Grade");
+        manageGradesButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        panel.add(manageGradesButton, BorderLayout.SOUTH);
+
+        gradebookCourseTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = gradebookCourseTable.getSelectedRow();
+                if (selectedRow >= 0) {
+                    String subjectId = (String) gradebookCourseModel.getValueAt(selectedRow, 0);
+                    loadStudentsForCourse(subjectId);
+                }
+            }
+        });
+
+        // ⭐️ (แก้) เรียกเมธอดใหม่
+        manageGradesButton.addActionListener(e -> openGradeManagementDialog());
+        
+        return panel;
+    }
+    
+    private void loadTeacherCourses() {
+        gradebookCourseModel.setRowCount(0);
+        teacherSubjects = dbManager.getSubjectsForTeacher(this.currentUsername); 
+        
+        for (Subject s : teacherSubjects) {
+            gradebookCourseModel.addRow(new Object[]{
+                s.id,
+                s.name,
+                s.semesterName
+            });
+        }
+    }
+
+    private void loadStudentsForCourse(String subjectId) {
+        gradebookStudentModel.setRowCount(0);
+        currentSubjectEnrollments = dbManager.getEnrollmentsForSubject(subjectId);
+        
+        for (EnrollmentRecord er : currentSubjectEnrollments) {
+            gradebookStudentModel.addRow(new Object[]{
+                er.studentId,
+                er.studentName,
+                er.grade
+            });
+        }
+    }
+    
+    private void openGradeManagementDialog() {
+        int courseRow = gradebookCourseTable.getSelectedRow();
+        int studentRow = gradebookStudentTable.getSelectedRow();
+
+        if (courseRow < 0 || studentRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select both a course and a student.", "Selection Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // ดึงข้อมูล
+        EnrollmentRecord selectedEnrollment = currentSubjectEnrollments.get(studentRow);
+        Subject selectedSubject = teacherSubjects.get(courseRow);
+        
+        // เปิด Dialog ใหม่
+        GradeManagementDialog dialog = new GradeManagementDialog(
+            this, 
+            dbManager, 
+            selectedEnrollment.enrollmentId,
+            selectedEnrollment.studentName,
+            selectedSubject.name,
+            selectedEnrollment.grade
+        );
+        dialog.setVisible(true);
+
+        // ⭐️ หลังจาก Dialog ปิด, คำนวณ GPA ใหม่ และรีเฟรชตาราง
+        dbManager.calculateAndUpdatStudentGPA(selectedEnrollment.studentId);
+        loadStudentsForCourse(selectedSubject.id);
     }
 
     private JPanel createHomeroomTab() {
@@ -65,7 +177,6 @@ public class TeacherPortalGUI extends JFrame {
         return panel;
     }
 
-    // ⭐️ (ใหม่) สร้าง Tab สำหรับส่งใบลา
     private JPanel createLeaveRequestTab() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -124,5 +235,32 @@ public class TeacherPortalGUI extends JFrame {
                 s.id, s.name, s.major, s.year, s.gpa, s.status.name()
             });
         }
+    }
+
+    private JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem refreshItem = new JMenuItem("🔄 Refresh Data");
+        refreshItem.addActionListener(e -> {
+            loadHomeroomStudents();
+            loadTeacherCourses();
+            if (gradebookStudentTable.getRowCount() > 0) {
+                gradebookStudentModel.setRowCount(0);
+            }
+        });
+        fileMenu.add(refreshItem);
+        
+        JMenu securityMenu = new JMenu("🔒 Security");
+        JMenuItem logoutItem = new JMenuItem("🚪 Logout");
+
+        logoutItem.addActionListener(e -> {
+            TeacherPortalGUI.this.dispose();
+            MainApp.main(null); 
+        });
+
+        securityMenu.add(logoutItem);
+        menuBar.add(fileMenu);
+        menuBar.add(securityMenu);
+        return menuBar;
     }
 }

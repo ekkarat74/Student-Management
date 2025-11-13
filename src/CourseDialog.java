@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-// ⭐️ (ไฟล์ใหม่)
 public class CourseDialog extends JDialog {
 
     private JTextField idField, nameField, creditsField, roomField, timeField;
@@ -12,7 +11,7 @@ public class CourseDialog extends JDialog {
     private JComboBox<String> dayBox;
     
     private JButton saveButton, cancelButton;
-    private CourseData courseData = null; // ⭐️ ที่จะส่งกลับ
+    private CourseData courseData = null;
 
     public CourseDialog(Frame parent, ArrayList<Major> majors, ArrayList<Semester> semesters, ArrayList<Teacher> teachers) {
         super(parent, "Add New Course", true);

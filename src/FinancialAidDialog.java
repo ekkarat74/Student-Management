@@ -2,10 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-/**
- * (ไฟล์ใหม่)
- * Dialog สำหรับการเพิ่มทุนการศึกษา หรือ ส่วนลด
- */
 public class FinancialAidDialog extends JDialog {
 
     private JComboBox<Invoice> invoiceComboBox;

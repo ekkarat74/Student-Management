@@ -1,11 +1,6 @@
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-/**
- * (ไฟล์ใหม่)
- * คลาส DTO (Data Transfer Object) สำหรับเก็บข้อมูลสรุปการเงิน
- * ใช้สำหรับแสดงผลในตาราง financeTable (ตารางหลัก)
- */
 class FinanceSummary {
     String studentId;
     String studentName;
@@ -29,10 +24,6 @@ class FinanceSummary {
     }
 }
 
-/**
- * (ไฟล์ใหม่)
- * คลาส Model สำหรับเก็บข้อมูลใบแจ้งหนี้ (Invoice)
- */
 class Invoice {
     int id;
     String studentId;
@@ -52,17 +43,12 @@ class Invoice {
         this.status = status;
     }
     
-    // Override toString() เพื่อให้แสดงผลใน JComboBox ได้ง่าย
     @Override
     public String toString() {
         return String.format("Invoice #%d (Amount: %.2f, Status: %s)", id, totalAmount, status);
     }
 }
 
-/**
- * (ไฟล์ใหม่)
- * คลาส Model สำหรับเก็บข้อมูลการชำระเงิน (Transaction)
- */
 class Transaction {
     int id;
     int invoiceId;
@@ -72,7 +58,6 @@ class Transaction {
     String paymentMethod; // ONLINE, COUNTER, TRANSFER
     String referenceCode;
 
-    // Constructor สำหรับสร้าง Transaction ใหม่ (ยังไม่มี ID)
     public Transaction(int invoiceId, String studentId, double amountPaid, String paymentMethod, String referenceCode) {
         this.invoiceId = invoiceId;
         this.studentId = studentId;
@@ -82,7 +67,6 @@ class Transaction {
         this.paymentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
-    // Constructor สำหรับดึงข้อมูลจาก DB (มี ID แล้ว)
     public Transaction(int id, int invoiceId, String studentId, String paymentDate, double amountPaid, String paymentMethod, String referenceCode) {
         this(invoiceId, studentId, amountPaid, paymentMethod, referenceCode);
         this.id = id;

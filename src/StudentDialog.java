@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 
 public class StudentDialog extends JDialog {
     private JTextField idField, nameField, emailField, photoPathField, ageField, gpaField;
@@ -9,6 +10,8 @@ public class StudentDialog extends JDialog {
     private JTextField phoneField;  
     private JButton photoButton;     
     private JComboBox<String> majorDropdown, yearDropdown, statusDropdown;
+    private JComboBox<Classroom> classroomDropdown;
+    private ArrayList<Classroom> classroomList;
     private JButton saveButton, cancelButton;
     private JTextField previousSchoolField;
     private JTextField docAppField;
@@ -24,11 +27,12 @@ public class StudentDialog extends JDialog {
 
     public StudentDialog(StudentManagementGUI parentGUI, String title,
                          String[] majorOptions, String[] yearOptions, String[] statusOptions,
-                         Student existingStudent) {
+                         Student existingStudent, ArrayList<Classroom> classrooms) { // ⭐️ รับ classrooms
         super(parentGUI, title, true);
         this.parentGUI = parentGUI;
         this.existingStudent = existingStudent;
         this.isNewStudent = (existingStudent == null);
+        this.classroomList = (classrooms != null) ? classrooms : new ArrayList<>(); // ⭐️ ใช้ classrooms ที่รับมา
 
         setSize(550, 800);
         setLocationRelativeTo(parentGUI);
@@ -58,6 +62,16 @@ public class StudentDialog extends JDialog {
             majorDropdown.setSelectedItem(existingStudent.major);
             yearDropdown.setSelectedItem(String.valueOf(existingStudent.year));
             statusDropdown.setSelectedItem(existingStudent.status.name());
+            
+            // ⭐️ (ส่วนนี้คุณทำถูกแล้ว)
+            if (existingStudent.classroomId != null) {
+                for (Classroom c : this.classroomList) {
+                    if (c.id.equals(existingStudent.classroomId)) {
+                        classroomDropdown.setSelectedItem(c);
+                        break;
+                    }
+                }
+            }
             previousSchoolField.setText(existingStudent.previousSchool);
             docAppField.setText(existingStudent.docApplicationPath);
             docIdField.setText(existingStudent.docIdCardPath);
@@ -120,6 +134,10 @@ public class StudentDialog extends JDialog {
         gbc.gridx = 1; majorDropdown = new JComboBox<>(majorOptions); panel.add(majorDropdown, gbc); y++;
         gbc.gridx = 0; gbc.gridy = y; panel.add(new JLabel("Year:"), gbc);
         gbc.gridx = 1; yearDropdown = new JComboBox<>(yearOptions); panel.add(yearDropdown, gbc); y++;
+        gbc.gridx = 0; gbc.gridy = y; panel.add(new JLabel("Classroom:"), gbc);
+        gbc.gridx = 1; 
+        classroomDropdown = new JComboBox<>(classroomList.toArray(new Classroom[0]));
+        panel.add(classroomDropdown, gbc); y++;
         gbc.gridx = 0; gbc.gridy = y; panel.add(new JLabel("Status:"), gbc);
         gbc.gridx = 1; statusDropdown = new JComboBox<>(statusOptions); panel.add(statusDropdown, gbc); y++;
         gbc.gridx = 0; gbc.gridy = y; panel.add(new JLabel("Previous School:"), gbc);
@@ -156,6 +174,8 @@ public class StudentDialog extends JDialog {
         String major = (String) majorDropdown.getSelectedItem();
         String yearStr = (String) yearDropdown.getSelectedItem();
         String status = (String) statusDropdown.getSelectedItem();
+        Classroom selectedClassroom = (Classroom) classroomDropdown.getSelectedItem();
+        String classroomId = (selectedClassroom != null) ? selectedClassroom.id : null;
         String previousSchool = previousSchoolField.getText().trim();
         String docApp = docAppField.getText().trim();
         String docId = docIdField.getText().trim();
@@ -173,8 +193,11 @@ public class StudentDialog extends JDialog {
         StudentStatus statusEnum = StudentStatus.valueOf(status);
 
         if (isNewStudent) {
+            String dateAdded = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
             student = new Student(id, name, address, phone, email, photoPath, age, gpa, year, statusEnum, major,
-                                  previousSchool, docApp, docId, docTranscript);
+                                  dateAdded,
+                                  previousSchool, docApp, docId, docTranscript,
+                                  classroomId);
         } else {
             existingStudent.name = name;
             existingStudent.address = address;
@@ -186,6 +209,7 @@ public class StudentDialog extends JDialog {
             existingStudent.year = year;
             existingStudent.status = statusEnum;
             existingStudent.major = major;
+            existingStudent.classroomId = classroomId;
             existingStudent.previousSchool = previousSchool;
             existingStudent.docApplicationPath = docApp;
             existingStudent.docIdCardPath = docId;

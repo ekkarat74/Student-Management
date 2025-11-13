@@ -2,10 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-/**
- * (ไฟล์ใหม่)
- * Dialog สำหรับการ Generate Invoices
- */
 public class GenerateInvoiceDialog extends JDialog {
 
     private JComboBox<Semester> semesterComboBox;

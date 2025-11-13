@@ -15,9 +15,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JMenu;         // ⭐️ (เพิ่ม)
+import javax.swing.JMenuBar;      // ⭐️ (เพิ่ม)
+import javax.swing.JMenuItem;     // ⭐️ (เพิ่ม)
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTable; 
@@ -26,20 +31,27 @@ import javax.swing.table.DefaultTableModel;
 public class StudentPortalGUI extends JFrame {
 
     private String currentUsername;
-    private Role currentUserRole;
     private DatabaseManager dbManager;
     private Student currentStudent;
     private Teacher homeroomTeacher; 
+    private Classroom classroom;
     private DefaultTableModel scheduleModel;
     private JTable scheduleTable;
 
+private DefaultTableModel transcriptModel;
+    private JTable transcriptTable;
+    private DefaultTableModel assignmentModel; // ⭐️ (เพิ่ม)
+    private JTable assignmentTable; // ⭐️ (เพิ่ม)
+    private JLabel gpaLabel;
+    private ArrayList<EnrollmentRecord> enrollmentRecords; // ⭐️ (เพิ่ม)
+
     public StudentPortalGUI(Role role, String username) {
-        this.currentUserRole = role;
         this.currentUsername = username;
         this.dbManager = new DatabaseManager();
 
         this.currentStudent = dbManager.getStudentById(this.currentUsername);
         this.homeroomTeacher = dbManager.getHomeroomTeacher(this.currentUsername); 
+        this.classroom = dbManager.getClassroomById(this.currentStudent.classroomId);
 
         if (this.currentStudent == null) {
             JOptionPane.showMessageDialog(null, "Error: Could not find student data for ID: " + this.currentUsername);
@@ -52,6 +64,8 @@ public class StudentPortalGUI extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        setJMenuBar(createMenuBar());
 
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(240, 240, 240));
@@ -66,11 +80,90 @@ public class StudentPortalGUI extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("🏠 My Profile", createProfileTab());
         tabbedPane.addTab("🗓️ My Schedule", createScheduleTab()); 
+        tabbedPane.addTab("🎓 My Grades", createTranscriptTab());
         
         add(tabbedPane, BorderLayout.CENTER);
 
         loadStudentSchedule(); 
+        loadTranscript();
         setVisible(true);
+    }
+
+private JPanel createTranscriptTab() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // --- ส่วนบน: ตารางเกรดสรุป ---
+        transcriptModel = new DefaultTableModel(new Object[]{"Course ID", "Course Name", "Credits", "Final Grade"}, 0);
+        transcriptTable = new JTable(transcriptModel);
+        transcriptTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        transcriptTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
+        transcriptTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane transcriptScrollPane = new JScrollPane(transcriptTable);
+
+        // --- ส่วนล่าง: ตารางคะแนนย่อย ---
+        assignmentModel = new DefaultTableModel(new Object[]{"Assignment", "Score", "Max Score"}, 0);
+        assignmentTable = new JTable(assignmentModel);
+        assignmentTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        JScrollPane assignmentScrollPane = new JScrollPane(assignmentTable);
+        assignmentScrollPane.setBorder(BorderFactory.createTitledBorder("Assignment Scores (Select a course above)"));
+
+        // --- Layout ---
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transcriptScrollPane, assignmentScrollPane);
+        splitPane.setDividerLocation(300);
+        panel.add(splitPane, BorderLayout.CENTER);
+
+        gpaLabel = new JLabel("Overall GPA: 0.00");
+        gpaLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        gpaLabel.setBorder(new EmptyBorder(10, 5, 5, 5));
+        panel.add(gpaLabel, BorderLayout.SOUTH);
+
+        // --- Listener ---
+        transcriptTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = transcriptTable.getSelectedRow();
+                if (selectedRow >= 0) {
+                    EnrollmentRecord selectedEnrollment = enrollmentRecords.get(selectedRow);
+                    loadAssignmentGrades(selectedEnrollment.enrollmentId);
+                } else {
+                    assignmentModel.setRowCount(0); // ล้างตารางล่างถ้าไม่เลือก
+                }
+            }
+        });
+
+        return panel;
+    }
+
+    private void loadTranscript() {
+        transcriptModel.setRowCount(0);
+        
+        // ⭐️ (ใช้เมธอดเดิม)
+        enrollmentRecords = dbManager.getEnrollmentsForStudent(this.currentUsername);
+        
+        for (EnrollmentRecord er : enrollmentRecords) {
+            transcriptModel.addRow(new Object[]{
+                er.subjectId,
+                er.subjectName,
+                er.credits,
+                er.grade
+            });
+        }
+        
+        if (currentStudent != null) {
+            gpaLabel.setText(String.format("Overall GPA: %.2f", currentStudent.gpa));
+        }
+    }
+
+    private void loadAssignmentGrades(int enrollmentId) {
+        assignmentModel.setRowCount(0);
+        ArrayList<AssignmentGrade> grades = dbManager.getAssignmentGradesForEnrollment(enrollmentId);
+        for (AssignmentGrade grade : grades) {
+            assignmentModel.addRow(new Object[]{
+                grade.assignmentName,
+                grade.score,
+                grade.maxScore
+            });
+        }
     }
 
     private JPanel createProfileTab() {
@@ -102,7 +195,9 @@ public class StudentPortalGUI extends JFrame {
         int y = 0;
         
         String hrTeacherName = (homeroomTeacher != null) ? homeroomTeacher.name : "N/A";
+        String classroomName = (classroom != null) ? classroom.name : "N/A";
         infoPanel.add(createReadOnlyField("Homeroom Teacher:", hrTeacherName, Color.BLUE), createGbc(0, y++));
+        infoPanel.add(createReadOnlyField("Classroom:", classroomName), createGbc(0, y++));
         infoPanel.add(createReadOnlyField("Student ID:", currentStudent.id), createGbc(0, y++));
         infoPanel.add(createReadOnlyField("Full Name:", currentStudent.name), createGbc(0, y++));
         infoPanel.add(createReadOnlyField("Email:", currentStudent.email), createGbc(0, y++));
@@ -172,5 +267,32 @@ public class StudentPortalGUI extends JFrame {
         panel.add(lblLabel, BorderLayout.WEST);
         panel.add(txtValue, BorderLayout.CENTER);
         return panel;
+    }
+
+private JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem refreshItem = new JMenuItem("🔄 Refresh Data");
+        refreshItem.addActionListener(e -> {
+            this.currentStudent = dbManager.getStudentById(this.currentUsername); // ⭐️ (แก้) ต้องโหลด GPA ใหม่
+            loadStudentSchedule();
+            loadTranscript();
+            assignmentModel.setRowCount(0); // ⭐️ (เพิ่ม) ล้างตารางล่าง
+        });
+        fileMenu.add(refreshItem);
+        
+        JMenu securityMenu = new JMenu("🔒 Security");
+        JMenuItem logoutItem = new JMenuItem("🚪 Logout");
+
+        logoutItem.addActionListener(e -> {
+            StudentPortalGUI.this.dispose();
+            MainApp.main(null); 
+        });
+
+        securityMenu.add(logoutItem);
+        menuBar.add(fileMenu); 
+        menuBar.add(securityMenu);
+        return menuBar;
     }
 }

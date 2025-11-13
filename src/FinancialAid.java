@@ -1,10 +1,6 @@
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-/**
- * (ไฟล์ใหม่)
- * คลาส Model สำหรับเก็บข้อมูลทุน / ส่วนลด
- */
 public class FinancialAid {
     int id;
     String studentId;
