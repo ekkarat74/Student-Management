@@ -15,9 +15,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JMenu;         // ⭐️ (เพิ่ม)
-import javax.swing.JMenuBar;      // ⭐️ (เพิ่ม)
-import javax.swing.JMenuItem;     // ⭐️ (เพิ่ม)
+import javax.swing.JMenu; 
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem; 
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -40,10 +40,10 @@ public class StudentPortalGUI extends JFrame {
 
 private DefaultTableModel transcriptModel;
     private JTable transcriptTable;
-    private DefaultTableModel assignmentModel; // ⭐️ (เพิ่ม)
-    private JTable assignmentTable; // ⭐️ (เพิ่ม)
+    private DefaultTableModel assignmentModel;
+    private JTable assignmentTable; 
     private JLabel gpaLabel;
-    private ArrayList<EnrollmentRecord> enrollmentRecords; // ⭐️ (เพิ่ม)
+    private ArrayList<EnrollmentRecord> enrollmentRecords;
 
     public StudentPortalGUI(Role role, String username) {
         this.currentUsername = username;
@@ -93,7 +93,6 @@ private JPanel createTranscriptTab() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // --- ส่วนบน: ตารางเกรดสรุป ---
         transcriptModel = new DefaultTableModel(new Object[]{"Course ID", "Course Name", "Credits", "Final Grade"}, 0);
         transcriptTable = new JTable(transcriptModel);
         transcriptTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -101,14 +100,12 @@ private JPanel createTranscriptTab() {
         transcriptTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane transcriptScrollPane = new JScrollPane(transcriptTable);
 
-        // --- ส่วนล่าง: ตารางคะแนนย่อย ---
         assignmentModel = new DefaultTableModel(new Object[]{"Assignment", "Score", "Max Score"}, 0);
         assignmentTable = new JTable(assignmentModel);
         assignmentTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
         JScrollPane assignmentScrollPane = new JScrollPane(assignmentTable);
         assignmentScrollPane.setBorder(BorderFactory.createTitledBorder("Assignment Scores (Select a course above)"));
 
-        // --- Layout ---
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transcriptScrollPane, assignmentScrollPane);
         splitPane.setDividerLocation(300);
         panel.add(splitPane, BorderLayout.CENTER);
@@ -118,7 +115,6 @@ private JPanel createTranscriptTab() {
         gpaLabel.setBorder(new EmptyBorder(10, 5, 5, 5));
         panel.add(gpaLabel, BorderLayout.SOUTH);
 
-        // --- Listener ---
         transcriptTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = transcriptTable.getSelectedRow();
@@ -126,7 +122,7 @@ private JPanel createTranscriptTab() {
                     EnrollmentRecord selectedEnrollment = enrollmentRecords.get(selectedRow);
                     loadAssignmentGrades(selectedEnrollment.enrollmentId);
                 } else {
-                    assignmentModel.setRowCount(0); // ล้างตารางล่างถ้าไม่เลือก
+                    assignmentModel.setRowCount(0);
                 }
             }
         });
@@ -137,7 +133,6 @@ private JPanel createTranscriptTab() {
     private void loadTranscript() {
         transcriptModel.setRowCount(0);
         
-        // ⭐️ (ใช้เมธอดเดิม)
         enrollmentRecords = dbManager.getEnrollmentsForStudent(this.currentUsername);
         
         for (EnrollmentRecord er : enrollmentRecords) {
@@ -214,35 +209,30 @@ private JPanel createTranscriptTab() {
         GridBagConstraints gbc = createGbc(0, y);
         gbc.weighty = 1.0; 
         infoPanel.add(Box.createVerticalGlue(), gbc);
-
         panel.add(new JScrollPane(infoPanel), BorderLayout.CENTER); 
         
         return panel;
     }
 
-    // ⭐️ (อัปเดต)
     private JPanel createScheduleTab() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        // ⭐️ (อัปเดต) เพิ่มคอลัมน์ "Schedule"
         scheduleModel = new DefaultTableModel(new Object[]{"Subject ID", "Subject Name", "Teacher", "Schedule"}, 0);
         scheduleTable = new JTable(scheduleModel);
         panel.add(new JScrollPane(scheduleTable), BorderLayout.CENTER);
         return panel;
     }
 
-    // ⭐️ (อัปเดต)
     private void loadStudentSchedule() {
         scheduleModel.setRowCount(0);
         ArrayList<StudentSchedule> scheduleList = dbManager.getStudentSchedule(this.currentUsername);
         for (StudentSchedule s : scheduleList) {
             scheduleModel.addRow(new Object[]{
-                s.subjectId, s.subjectName, s.teacherName, s.scheduleInfo // ⭐️ (ใหม่)
+                s.subjectId, s.subjectName, s.teacherName, s.scheduleInfo
             });
         }
     }
 
-    // --- Helper Methods ---
     private GridBagConstraints createGbc(int x, int y) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = x; gbc.gridy = y;
@@ -275,10 +265,10 @@ private JMenuBar createMenuBar() {
         JMenu fileMenu = new JMenu("File");
         JMenuItem refreshItem = new JMenuItem("🔄 Refresh Data");
         refreshItem.addActionListener(e -> {
-            this.currentStudent = dbManager.getStudentById(this.currentUsername); // ⭐️ (แก้) ต้องโหลด GPA ใหม่
+            this.currentStudent = dbManager.getStudentById(this.currentUsername);
             loadStudentSchedule();
             loadTranscript();
-            assignmentModel.setRowCount(0); // ⭐️ (เพิ่ม) ล้างตารางล่าง
+            assignmentModel.setRowCount(0);
         });
         fileMenu.add(refreshItem);
         

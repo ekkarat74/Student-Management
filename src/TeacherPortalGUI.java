@@ -1,23 +1,23 @@
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints; // ⭐️ (ใหม่)
-import java.awt.GridBagLayout; // ⭐️ (ใหม่)
-import java.awt.Insets; // ⭐️ (ใหม่)
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets; 
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
-import javax.swing.JButton; // ⭐️ (ใหม่)
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane; // ⭐️ (ใหม่)
-import javax.swing.JMenu;         // ⭐️ (เพิ่ม)
-import javax.swing.JMenuBar;      // ⭐️ (เพิ่ม)
-import javax.swing.JMenuItem;     // ⭐️ (เพิ่ม)
+import javax.swing.JOptionPane; 
+import javax.swing.JMenu;         
+import javax.swing.JMenuBar;    
+import javax.swing.JMenuItem;     
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea; // ⭐️ (ใหม่)
-import javax.swing.JTextField; // ⭐️ (ใหม่)
+import javax.swing.JTextArea; 
+import javax.swing.JTextField; 
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -35,7 +35,7 @@ public class TeacherPortalGUI extends JFrame {
     private JTable gradebookCourseTable;
     private DefaultTableModel gradebookStudentModel;
     private JTable gradebookStudentTable;
-    private ArrayList<Subject> teacherSubjects; // ⭐️ (เพิ่ม) เก็บวิชาที่สอน
+    private ArrayList<Subject> teacherSubjects; 
     private ArrayList<EnrollmentRecord> currentSubjectEnrollments;
 
     public TeacherPortalGUI(Role role, String username) {
@@ -62,7 +62,7 @@ public class TeacherPortalGUI extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("📋 My Homeroom", createHomeroomTab());
         tabbedPane.addTab("📚 My Gradebook", createGradebookTab());
-        tabbedPane.addTab("🗓️ Request Leave", createLeaveRequestTab()); // ⭐️ (ใหม่)
+        tabbedPane.addTab("🗓️ Request Leave", createLeaveRequestTab()); 
         
         add(tabbedPane, BorderLayout.CENTER);
 
@@ -107,7 +107,6 @@ public class TeacherPortalGUI extends JFrame {
             }
         });
 
-        // ⭐️ (แก้) เรียกเมธอดใหม่
         manageGradesButton.addActionListener(e -> openGradeManagementDialog());
         
         return panel;
@@ -148,11 +147,9 @@ public class TeacherPortalGUI extends JFrame {
             return;
         }
 
-        // ดึงข้อมูล
         EnrollmentRecord selectedEnrollment = currentSubjectEnrollments.get(studentRow);
         Subject selectedSubject = teacherSubjects.get(courseRow);
         
-        // เปิด Dialog ใหม่
         GradeManagementDialog dialog = new GradeManagementDialog(
             this, 
             dbManager, 
@@ -163,7 +160,6 @@ public class TeacherPortalGUI extends JFrame {
         );
         dialog.setVisible(true);
 
-        // ⭐️ หลังจาก Dialog ปิด, คำนวณ GPA ใหม่ และรีเฟรชตาราง
         dbManager.calculateAndUpdatStudentGPA(selectedEnrollment.studentId);
         loadStudentsForCourse(selectedSubject.id);
     }

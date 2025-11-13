@@ -27,12 +27,12 @@ public class StudentDialog extends JDialog {
 
     public StudentDialog(StudentManagementGUI parentGUI, String title,
                          String[] majorOptions, String[] yearOptions, String[] statusOptions,
-                         Student existingStudent, ArrayList<Classroom> classrooms) { // ⭐️ รับ classrooms
+                         Student existingStudent, ArrayList<Classroom> classrooms) {
         super(parentGUI, title, true);
         this.parentGUI = parentGUI;
         this.existingStudent = existingStudent;
         this.isNewStudent = (existingStudent == null);
-        this.classroomList = (classrooms != null) ? classrooms : new ArrayList<>(); // ⭐️ ใช้ classrooms ที่รับมา
+        this.classroomList = (classrooms != null) ? classrooms : new ArrayList<>();
 
         setSize(550, 800);
         setLocationRelativeTo(parentGUI);
@@ -63,7 +63,6 @@ public class StudentDialog extends JDialog {
             yearDropdown.setSelectedItem(String.valueOf(existingStudent.year));
             statusDropdown.setSelectedItem(existingStudent.status.name());
             
-            // ⭐️ (ส่วนนี้คุณทำถูกแล้ว)
             if (existingStudent.classroomId != null) {
                 for (Classroom c : this.classroomList) {
                     if (c.id.equals(existingStudent.classroomId)) {

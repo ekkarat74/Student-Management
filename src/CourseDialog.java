@@ -83,7 +83,6 @@ public class CourseDialog extends JDialog {
     }
 
     private void onSave() {
-        // 1. ดึงข้อมูล
         String id = idField.getText().trim();
         String name = nameField.getText().trim();
         String creditsStr = creditsField.getText().trim();
@@ -94,7 +93,6 @@ public class CourseDialog extends JDialog {
         String day = (String) dayBox.getSelectedItem();
         String time = timeField.getText().trim();
 
-        // 2. ตรวจสอบ
         if (id.isEmpty() || name.isEmpty() || creditsStr.isEmpty() || room.isEmpty() || time.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields are required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -108,7 +106,6 @@ public class CourseDialog extends JDialog {
             return;
         }
 
-        // 3. สร้าง CourseData
         this.courseData = new CourseData(id, name, credits, major.id, semester.id, teacher.id, room, day, time);
         dispose();
     }

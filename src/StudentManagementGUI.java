@@ -109,7 +109,7 @@ public class StudentManagementGUI extends JFrame {
         sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
         
-        setupTabs(); // ⭐️ เรียก Factory
+        setupTabs();
         refreshAllClassroomsList();
         refreshTable();
         refreshCourseTable(); 
@@ -211,25 +211,25 @@ public class StudentManagementGUI extends JFrame {
         navStudents.addActionListener(e -> tabbedPane.setSelectedIndex(0));
         JMenuItem navCourses = new JMenuItem("📚 Course Management");
         navCourses.addActionListener(e -> tabbedPane.setSelectedIndex(1));
-        JMenuItem navClassrooms = new JMenuItem("🏫 Classroom Management"); // ⭐️
-        navClassrooms.addActionListener(e -> tabbedPane.setSelectedIndex(2)); // ⭐️
+        JMenuItem navClassrooms = new JMenuItem("🏫 Classroom Management"); 
+        navClassrooms.addActionListener(e -> tabbedPane.setSelectedIndex(2)); 
         JMenuItem navLeave = new JMenuItem("🗓️ Leave Management");
-        navLeave.addActionListener(e -> tabbedPane.setSelectedIndex(3)); // ⭐️
+        navLeave.addActionListener(e -> tabbedPane.setSelectedIndex(3)); 
         JMenuItem navFinance = new JMenuItem("💸 Finance & Payments");
-        navFinance.addActionListener(e -> tabbedPane.setSelectedIndex(4)); // ⭐️
+        navFinance.addActionListener(e -> tabbedPane.setSelectedIndex(4)); 
         JMenuItem navReports = new JMenuItem("📊 Reports & Dashboard");
-        navReports.addActionListener(e -> tabbedPane.setSelectedIndex(5)); // ⭐️
+        navReports.addActionListener(e -> tabbedPane.setSelectedIndex(5));
 
         navigationMenu.add(navStudents);
         navigationMenu.add(navCourses);
-        navigationMenu.add(navClassrooms); // ⭐️
+        navigationMenu.add(navClassrooms); 
         navigationMenu.add(navLeave);
         navigationMenu.add(navFinance);
         navigationMenu.add(navReports);
         
         if (currentUserRole == Role.ADMIN || currentUserRole == Role.OFFICER) {
             JMenuItem navSecurity = new JMenuItem("🛡️ Security & Admin");
-            navSecurity.addActionListener(e -> tabbedPane.setSelectedIndex(6)); // ⭐️
+            navSecurity.addActionListener(e -> tabbedPane.setSelectedIndex(6));
             navigationMenu.addSeparator();
             navigationMenu.add(navSecurity);
         }
@@ -433,14 +433,16 @@ public class StudentManagementGUI extends JFrame {
         dialog.setVisible(true);
         Teacher newTeacher = dialog.getTeacher();
         if (newTeacher != null) {
-            String tempPassword = JOptionPane.showInputDialog(this, "Enter a temporary password for teacher: " + newTeacher.id, "Create Login Account", JOptionPane.PLAIN_MESSAGE);
+            String tempPassword = JOptionPane.showInputDialog(this, "Enter a temporary password for teacher: " + 
+                                                            newTeacher.id, "Create Login Account", JOptionPane.PLAIN_MESSAGE);
             if (tempPassword == null || tempPassword.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Password cannot be empty. Teacher creation cancelled.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             boolean userCreated = dbManager.createUser(newTeacher.id, tempPassword, Role.TEACHER);
             if (!userCreated) {
-                JOptionPane.showMessageDialog(this, "Failed to create login user (perhaps username " + newTeacher.id + " already exists?).", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Failed to create login user (perhaps username " 
+                                            + newTeacher.id + " already exists?).", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             dbManager.addTeacher(newTeacher);
@@ -630,12 +632,11 @@ public void addClassroom() {
         
         Classroom newClassroom = dialog.getClassroom();
         if (newClassroom != null) {
-            // ⭐️ (แก้) ส่ง newClassroom.type
             if (dbManager.addClassroom(newClassroom.id, newClassroom.name, newClassroom.teacherId, newClassroom.majorId, newClassroom.type)) {
                 JOptionPane.showMessageDialog(this, "Classroom created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 dbManager.logActivity(currentUsername, "Created classroom: " + newClassroom.id);
                 refreshClassroomTable();
-                refreshAllClassroomsList(); // ⭐️ อัปเดต Filter
+                refreshAllClassroomsList();
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to create classroom (ID might already exist).", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -1016,8 +1017,6 @@ public void addClassroom() {
         return card;
     }
     
-    // --- Helpers for Security Panel (Called by PanelFactory) ---
-    
     public JPanel createUserManagementPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         
@@ -1108,7 +1107,7 @@ private void refreshClassroomTable() {
             classroomModel.addRow(new Object[]{
                 c.id,
                 c.name,
-                c.type.toString(), // ⭐️ (เพิ่ม)
+                c.type.toString(),
                 c.majorName != null ? c.majorName : "N/A",
                 c.teacherName != null ? c.teacherName : "N/A"
             });
@@ -1204,12 +1203,12 @@ private void refreshClassroomTable() {
                 List<RowFilter<Object, Object>> textOrFilters = new ArrayList<>();
                 String searchText = "(?i)" + text;
                 
-                textOrFilters.add(RowFilter.regexFilter(searchText, 0)); // ID
-                textOrFilters.add(RowFilter.regexFilter(searchText, 1)); // Name
-                textOrFilters.add(RowFilter.regexFilter(searchText, 2)); // Major
-                textOrFilters.add(RowFilter.regexFilter(searchText, 4)); // Classroom
-                textOrFilters.add(RowFilter.regexFilter(searchText, 7)); // Email
-                textOrFilters.add(RowFilter.regexFilter(searchText, 10)); // Homeroom Teacher
+                textOrFilters.add(RowFilter.regexFilter(searchText, 0));
+                textOrFilters.add(RowFilter.regexFilter(searchText, 1));
+                textOrFilters.add(RowFilter.regexFilter(searchText, 2));
+                textOrFilters.add(RowFilter.regexFilter(searchText, 4));
+                textOrFilters.add(RowFilter.regexFilter(searchText, 7));
+                textOrFilters.add(RowFilter.regexFilter(searchText, 10));
                 
                 filters.add(RowFilter.orFilter(textOrFilters));
                 
@@ -1496,7 +1495,7 @@ private void refreshClassroomTable() {
             return;
         }
         String username = (String) userModel.getValueAt(row, 0);
-        Role currentRole = Role.valueOf((String) userModel.getValueAt(row, 1)); // ⭐️ แก้ไข: ดึง Role จาก Column 1
+        Role currentRole = Role.valueOf((String) userModel.getValueAt(row, 1));
 
         Role[] allRoles = {Role.ADMIN, Role.OFFICER, Role.TEACHER, Role.STUDENT, Role.GUEST};
         

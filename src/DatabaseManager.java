@@ -25,9 +25,8 @@ enum ClassroomType {
 
 class Classroom {
     String id, name, teacherId, teacherName, majorId, majorName;
-    ClassroomType type; // ⭐️ (เพิ่ม)
+    ClassroomType type;
 
-    // ⭐️ (แก้) Constructor
     public Classroom(String id, String name, String teacherId, String teacherName, String majorId, String majorName, ClassroomType type) {
         this.id = id;
         this.name = name;
@@ -35,18 +34,17 @@ class Classroom {
         this.teacherName = teacherName;
         this.majorId = majorId;
         this.majorName = majorName;
-        this.type = type; // ⭐️ (เพิ่ม)
+        this.type = type;
     }
 
-    // ⭐️ (แก้) Overload Constructor (สำหรับตัวเลือก "All Classrooms")
     public Classroom(String id, String name, String teacherId, String teacherName, String majorId, String majorName) {
          this(id, name, teacherId, teacherName, majorId, majorName, ClassroomType.NORMAL);
     }
 
     @Override 
     public String toString() { 
-        if (id == null) return name; // สำหรับ "All Classrooms"
-        String typeStr = (type != null) ? " (" + type.toString() + ")" : ""; // ⭐️ (แก้)
+        if (id == null) return name;
+        String typeStr = (type != null) ? " (" + type.toString() + ")" : "";
         return name + typeStr + " [" + (majorName != null ? majorName : "N/A") + "] (Teacher: " + (teacherName != null ? teacherName : "N/A") + ")"; 
     }
 }
@@ -104,20 +102,20 @@ class Teacher {
 
 class StudentSchedule {
     String subjectId, subjectName, teacherName;
-    String scheduleInfo; // ⭐️ (ใหม่)
+    String scheduleInfo;
     
     public StudentSchedule(String subjectId, String subjectName, String teacherName, String scheduleInfo) {
         this.subjectId = subjectId;
         this.subjectName = subjectName;
         this.teacherName = teacherName;
-        this.scheduleInfo = scheduleInfo; // ⭐️ (ใหม่)
+        this.scheduleInfo = scheduleInfo;
     }
 }
 
 class Subject {
     String id, name, majorName, semesterName, teacherName, scheduleInfo;
     int credits;
-    String prerequisites; // ⭐️ (ใหม่)
+    String prerequisites;
 
     public Subject(String id, String name, int credits, String majorName, String semesterName, 
                    String teacherName, String scheduleInfo, String prerequisites) {
@@ -140,13 +138,13 @@ class Subject {
 class Major {
     String id, name;
     public Major(String id, String name) { this.id = id; this.name = name; }
-    @Override public String toString() { return name; } // ⭐️ สำคัญมากสำหรับ ComboBox
+    @Override public String toString() { return name; }
 }
 
 class Semester {
     String id, name;
     public Semester(String id, String name) { this.id = id; this.name = name; }
-    @Override public String toString() { return name; } // ⭐️ สำคัญมากสำหรับ ComboBox
+    @Override public String toString() { return name; }
 }
 
 class CourseData {
@@ -176,7 +174,6 @@ class LeaveRequest {
     }
 }
 
-// ⭐️ (แก้) คลาส EnrollmentRecord ใน DatabaseManager.java
 class EnrollmentRecord {
     int enrollmentId;
     String subjectId;
@@ -184,7 +181,6 @@ class EnrollmentRecord {
     int credits;
     String grade;
     
-    // ⭐️ (เพิ่ม) Fields ใหม่
     String studentId;
     String studentName;
 
@@ -206,7 +202,7 @@ class StudentDisplayRecord {
 
 public StudentDisplayRecord(String id, String name, String major, int year, StudentStatus status, 
                             double gpa, String email, String phone, String dateAdded, 
-                            String homeroomTeacherName, String classroomName) { // ⭐️ (เพิ่ม)
+                            String homeroomTeacherName, String classroomName) {
         this.id = id;
         this.name = name;
         this.major = major;
@@ -217,7 +213,7 @@ public StudentDisplayRecord(String id, String name, String major, int year, Stud
         this.phone = phone;
         this.dateAdded = dateAdded;
         this.homeroomTeacherName = homeroomTeacherName;
-        this.classroomName = classroomName; // ⭐️ (เพิ่ม)
+        this.classroomName = classroomName;
     }
 }
 
@@ -376,7 +372,6 @@ public class DatabaseManager {
             action_description TEXT NOT NULL
         );""";
 
-    // ⭐️ (เพิ่ม) Flag สำหรับตรวจสอบว่าเป็นฐานข้อมูลใหม่หรือไม่
     boolean isNewDatabase = false;
 
     try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
@@ -400,10 +395,8 @@ public class DatabaseManager {
         
         stmt.execute(createActivityLogTable);
 
-        // ⭐️ (เพิ่ม) ตรวจสอบว่ามี user 'admin' หรือยัง
         try (ResultSet rs = stmt.executeQuery("SELECT 1 FROM users WHERE username = 'admin'")) {
             if (!rs.next()) {
-                // ถ้าไม่พบ user 'admin' ให้ถือว่าเป็นฐานข้อมูลใหม่
                 isNewDatabase = true;
             }
         }
@@ -412,7 +405,6 @@ public class DatabaseManager {
         e.printStackTrace();
     }
 
-    // ⭐️ (แก้) เรียก addDummyData() ต่อเมื่อเป็นฐานข้อมูลใหม่เท่านั้น
     if (isNewDatabase) {
         System.out.println("Database appears to be new. Adding dummy data...");
         addDummyData();
@@ -452,7 +444,7 @@ public class DatabaseManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // ไม่พบ
+        return null;
     }
 
     public boolean createStudentWithLogin(Student s, String password) {
@@ -462,7 +454,7 @@ public class DatabaseManager {
         
         try {
             conn = connect();
-            conn.setAutoCommit(false); // 1. เริ่ม Transaction
+            conn.setAutoCommit(false);
 
             String hash = BCrypt.hashpw(password, BCrypt.gensalt());
             try (PreparedStatement pstmtUser = conn.prepareStatement(sqlUser)) {
@@ -492,12 +484,12 @@ public class DatabaseManager {
                 pstmt.executeUpdate();
             }
             
-            conn.commit(); // 4. ยืนยัน (Commit) ถ้าทุกอย่างสำเร็จ
+            conn.commit();
             return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
-            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); } // 5. Rollback ถ้ามีอะไรพลาด
+            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             return false;
         } finally {
             if (conn != null) try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { e.printStackTrace(); }
@@ -511,13 +503,13 @@ public class DatabaseManager {
         Connection conn = null;
         try {
             conn = connect();
-            conn.setAutoCommit(false); // เริ่ม Transaction
+            conn.setAutoCommit(false);
             try (PreparedStatement pstmtSub = conn.prepareStatement(sqlSubject)) {
                 pstmtSub.setString(1, data.name);
                 pstmtSub.setInt(2, data.credits);
                 pstmtSub.setString(3, data.majorId);
                 pstmtSub.setString(4, data.semesterId);
-                pstmtSub.setString(5, data.id); // WHERE clause
+                pstmtSub.setString(5, data.id);
                 pstmtSub.executeUpdate();
             }
             try (PreparedStatement pstmtAssign = conn.prepareStatement(sqlAssignment)) {
@@ -525,7 +517,7 @@ public class DatabaseManager {
                 pstmtAssign.setString(2, data.room);
                 pstmtAssign.setString(3, data.day);
                 pstmtAssign.setString(4, data.time);
-                pstmtAssign.setString(5, data.id); // WHERE clause
+                pstmtAssign.setString(5, data.id);
                 
                 int rowsAffected = pstmtAssign.executeUpdate();
                 if (rowsAffected == 0) {
@@ -541,7 +533,7 @@ public class DatabaseManager {
                 }
             }
             
-            conn.commit(); // ยืนยัน Transaction
+            conn.commit();
             return true;
 
         } catch (SQLException e) {
@@ -560,8 +552,7 @@ public class DatabaseManager {
         Connection conn = null;
         try {
             conn = connect();
-            conn.setAutoCommit(false); // เริ่ม Transaction
-
+            conn.setAutoCommit(false); 
             try (PreparedStatement pstmtDelete = conn.prepareStatement(sqlDelete)) {
                 pstmtDelete.setString(1, mainSubjectId);
                 pstmtDelete.executeUpdate();
@@ -578,7 +569,7 @@ public class DatabaseManager {
                 }
             }
             
-            conn.commit(); // ยืนยัน Transaction
+            conn.commit();
             return true;
 
         } catch (SQLException e) {
@@ -707,7 +698,6 @@ public class DatabaseManager {
     }
     
     public Teacher getHomeroomTeacher(String studentId) {
-        // ⭐️ (แก้ไข) SQL ใหม่ทั้งหมด
         String sql = """
             SELECT t.* FROM teachers t 
             JOIN classrooms c ON t.teacher_id = c.teacher_id
@@ -773,11 +763,11 @@ public class DatabaseManager {
                     rs.getString("teacher_name"),
                     rs.getString("major_id"),
                     rs.getString("major_name"),
-                    type // ⭐️ (เพิ่ม)
+                    type
                 ));
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Handle parsing error
+            e.printStackTrace();
         }
         return classrooms;
     }
@@ -798,7 +788,7 @@ public class DatabaseManager {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 String typeStr = rs.getString("classroom_type");
-                ClassroomType type = (typeStr != null) ? ClassroomType.valueOf(typeStr) : ClassroomType.NORMAL; // Default to NORMAL
+                ClassroomType type = (typeStr != null) ? ClassroomType.valueOf(typeStr) : ClassroomType.NORMAL;
 
                 return new Classroom(
                     rs.getString("classroom_id"),
@@ -807,24 +797,24 @@ public class DatabaseManager {
                     rs.getString("teacher_name"),
                     rs.getString("major_id"),
                     rs.getString("major_name"),
-                    type // ⭐️ (เพิ่ม)
+                    type
                 );
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Handle parsing error
+            e.printStackTrace();
         }
         return null;
     }
 
     public boolean updateClassroom(String id, String name, String teacherId, String majorId, ClassroomType type) {
-        String sql = "UPDATE classrooms SET classroom_name = ?, teacher_id = ?, major_id = ?, classroom_type = ? WHERE classroom_id = ?"; // ⭐️ (เพิ่ม type)
+        String sql = "UPDATE classrooms SET classroom_name = ?, teacher_id = ?, major_id = ?, classroom_type = ? WHERE classroom_id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             pstmt.setString(2, teacherId);
             pstmt.setString(3, majorId);
-            pstmt.setString(4, type.name()); // ⭐️ (เพิ่ม)
-            pstmt.setString(5, id); // ⭐️ (แก้ index)
+            pstmt.setString(4, type.name());
+            pstmt.setString(5, id);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -847,14 +837,14 @@ public class DatabaseManager {
     }
 
     public boolean addClassroom(String id, String name, String teacherId, String majorId, ClassroomType type) {
-        String sql = "INSERT INTO classrooms(classroom_id, classroom_name, teacher_id, major_id, classroom_type) VALUES (?, ?, ?, ?, ?)"; // ⭐️ (เพิ่ม type)
+        String sql = "INSERT INTO classrooms(classroom_id, classroom_name, teacher_id, major_id, classroom_type) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, id);
             pstmt.setString(2, name);
             pstmt.setString(3, teacherId);
             pstmt.setString(4, majorId);
-            pstmt.setString(5, type.name()); // ⭐️ (เพิ่ม)
+            pstmt.setString(5, type.name());
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -935,7 +925,6 @@ public class DatabaseManager {
         return teachers;
     }
     
-    // ⭐️ (ใหม่) เมธอดสำหรับเพิ่มวิชา (Transaction)
     public boolean addCourse(CourseData data) {
         String sqlSubject = "INSERT INTO subjects(subject_id, subject_name, credits, major_id, semester_id) VALUES (?, ?, ?, ?, ?)";
         String sqlAssignment = "INSERT INTO teaching_assignments(teacher_id, subject_id, room, schedule_day, schedule_time) VALUES (?, ?, ?, ?, ?)";
@@ -943,9 +932,8 @@ public class DatabaseManager {
         Connection conn = null;
         try {
             conn = connect();
-            conn.setAutoCommit(false); // ⭐️ เริ่ม Transaction
+            conn.setAutoCommit(false); 
 
-            // 1. เพิ่มในตาราง subjects
             try (PreparedStatement pstmtSub = conn.prepareStatement(sqlSubject)) {
                 pstmtSub.setString(1, data.id);
                 pstmtSub.setString(2, data.name);
@@ -955,24 +943,23 @@ public class DatabaseManager {
                 pstmtSub.executeUpdate();
             }
             
-            // 2. เพิ่มในตาราง teaching_assignments
             try (PreparedStatement pstmtAssign = conn.prepareStatement(sqlAssignment)) {
                 pstmtAssign.setString(1, data.teacherId);
-                pstmtAssign.setString(2, data.id); // ⭐️ ใช้ ID เดียวกัน
+                pstmtAssign.setString(2, data.id);
                 pstmtAssign.setString(3, data.room);
                 pstmtAssign.setString(4, data.day);
                 pstmtAssign.setString(5, data.time);
                 pstmtAssign.executeUpdate();
             }
             
-            conn.commit(); // ⭐️ ยืนยัน Transaction
+            conn.commit();
             return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
             if (conn != null) {
                 try {
-                    conn.rollback(); // ⭐️ ยกเลิก Transaction
+                    conn.rollback();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
@@ -990,7 +977,6 @@ public class DatabaseManager {
         }
     }
 
-    
     public ArrayList<Subject> getAllSubjects() {
         ArrayList<Subject> subjects = new ArrayList<>();
         String sql = """
@@ -1040,14 +1026,14 @@ public class DatabaseManager {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                students.add(new Student( // ⭐️ (แก้) เรียก 17-arg constructor
+                students.add(new Student(
                     rs.getString("student_id"), rs.getString("name"), rs.getString("address"),
                     rs.getString("phone"), rs.getString("email"), rs.getString("photoPath"),
                     rs.getInt("age"), rs.getDouble("gpa"), rs.getInt("year"),
                     StudentStatus.valueOf(rs.getString("status")), rs.getString("major"), rs.getString("dateAdded"),
                     rs.getString("previous_school"), rs.getString("doc_application_path"),
                     rs.getString("doc_id_card_path"), rs.getString("doc_transcript_path"),
-                    rs.getString("classroom_id") // ⭐️ (เพิ่ม) field ที่ 17
+                    rs.getString("classroom_id")
                 ));
             }
         } catch (SQLException e) { e.printStackTrace(); }
@@ -1055,10 +1041,8 @@ public class DatabaseManager {
         return students;
     }
 
-    // 3. เริ่ม method ใหม
     public ArrayList<StudentDisplayRecord> getAllStudentsForDisplay() {
         ArrayList<StudentDisplayRecord> students = new ArrayList<>();
-        // ⭐️ (แก้ไข) SQL ใหม่
         String sql = """
             SELECT 
                 s.student_id, s.name, s.major, s.year, s.status, s.gpa, s.email, s.phone, s.dateAdded,
@@ -1079,7 +1063,7 @@ public class DatabaseManager {
                 String statusStr = rs.getString("status");
                 StudentStatus status = (statusStr != null) ? StudentStatus.valueOf(statusStr) : StudentStatus.ENROLLED;
 
-                students.add(new StudentDisplayRecord( // ⭐️ (แก้ไข) Constructor
+                students.add(new StudentDisplayRecord(
                     rs.getString("student_id"),
                     rs.getString("name"),
                     rs.getString("major"),
@@ -1089,8 +1073,8 @@ public class DatabaseManager {
                     rs.getString("email"),
                     rs.getString("phone"),
                     rs.getString("dateAdded"),
-                    rs.getString("teacher_name"), // ⭐️ ชื่อครู
-                    rs.getString("classroom_name") // ⭐️ (เพิ่ม) ชื่อห้อง
+                    rs.getString("teacher_name"),
+                    rs.getString("classroom_name")
                 ));
             }
         } catch (SQLException e) {
@@ -1109,14 +1093,13 @@ public boolean addStudent(Student s) {
             pstmt.setString(10, s.status.name()); pstmt.setString(11, s.major); pstmt.setString(12, s.dateAdded);
             pstmt.setString(13, s.previousSchool); pstmt.setString(14, s.docApplicationPath);
             pstmt.setString(15, s.docIdCardPath); pstmt.setString(16, s.docTranscriptPath);
-            pstmt.setString(17, s.classroomId); // ⭐️ field ที่ 17
+            pstmt.setString(17, s.classroomId);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     public boolean updateStudent(Student s) {
-        // ⭐️ SQL ต้องมี 15 fields ที่จะ SET
         String sql = "UPDATE students SET name = ?, address = ?, phone = ?, email = ?, photoPath = ?, age = ?, gpa = ?, year = ?, status = ?, major = ?, previous_school = ?, doc_application_path = ?, doc_id_card_path = ?, doc_transcript_path = ?, classroom_id = ? WHERE student_id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1126,8 +1109,8 @@ public boolean addStudent(Student s) {
             pstmt.setString(10, s.major);
             pstmt.setString(11, s.previousSchool); pstmt.setString(12, s.docApplicationPath);
             pstmt.setString(13, s.docIdCardPath); pstmt.setString(14, s.docTranscriptPath);
-            pstmt.setString(15, s.classroomId); // ⭐️ field ที่ 15
-            pstmt.setString(16, s.id); // ⭐️ WHERE (index ที่ 16)
+            pstmt.setString(15, s.classroomId);
+            pstmt.setString(16, s.id);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); return false; }
@@ -1137,7 +1120,7 @@ public boolean addStudent(Student s) {
         String sql = "DELETE FROM students WHERE student_id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, id); // ⭐️ แก้จาก ; เป็น , (โค้ดเดิมของคุณถูกแล้ว)
+            pstmt.setString(1, id);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); return false; }
@@ -1181,7 +1164,6 @@ public boolean addStudent(Student s) {
         return DATABASE_FILE_NAME;
     }
 
-    // ⭐️ (ใหม่) สำหรับให้ครูส่งใบลา
     public boolean submitLeaveRequest(String teacherId, String startDate, String endDate, String reason) {
         String sql = "INSERT INTO leave_requests(teacher_id, start_date, end_date, reason) VALUES (?, ?, ?, ?)";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1197,10 +1179,8 @@ public boolean addStudent(Student s) {
         }
     }
 
-    // ⭐️ (ใหม่) สำหรับให้ Admin ดึงใบลาทั้งหมด
     public ArrayList<LeaveRequest> getAllLeaveRequests() {
         ArrayList<LeaveRequest> requests = new ArrayList<>();
-        // ⭐️ ใช้ JOIN เพื่อดึงชื่อครูมาแสดงด้วย
         String sql = """
             SELECT lr.*, t.name AS teacher_name 
             FROM leave_requests lr
@@ -1227,7 +1207,6 @@ public boolean addStudent(Student s) {
         return requests;
     }
 
-    // ⭐️ (ใหม่) สำหรับให้ Admin อนุมัติ/ปฏิเสธ ใบลา
     public boolean updateLeaveRequestStatus(int leaveId, String newStatus) {
         String sql = "UPDATE leave_requests SET status = ? WHERE leave_id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1252,7 +1231,7 @@ public boolean addStudent(Student s) {
             case "D+" -> 1.5;
             case "D" -> 1.0;
             case "F" -> 0.0;
-            default -> 0.0; // "W", "N/A", etc.
+            default -> 0.0;
         };
     }
 
@@ -1283,34 +1262,27 @@ public boolean addStudent(Student s) {
         return records;
     }
 
-    // ⭐️ (ใหม่) ลงทะเบียนวิชาให้นักเรียน
     public boolean enrollStudentInCourse(String studentId, String subjectId) {
-        // 1. ตรวจสอบว่าวิชานี้มีอยู่จริง
         String checkSubjectSql = "SELECT 1 FROM subjects WHERE subject_id = ?";
-        // 2. ตรวจสอบว่าลงทะเบียนไปแล้วหรือยัง
         String checkEnrollSql = "SELECT 1 FROM enrollments WHERE student_id = ? AND subject_id = ?";
-        // 3. ถ้าผ่าน, เพิ่ม
         String insertSql = "INSERT INTO enrollments(student_id, subject_id, grade) VALUES (?, ?, 'N/A')";
         
         try (Connection conn = connect()) {
-            // Check 1
             try (PreparedStatement pstmt = conn.prepareStatement(checkSubjectSql)) {
                 pstmt.setString(1, subjectId);
                 if (!pstmt.executeQuery().next()) {
                     System.err.println("Enroll Error: Subject ID not found");
-                    return false; // ไม่มีวิชานี้
+                    return false;
                 }
             }
-            // Check 2
             try (PreparedStatement pstmt = conn.prepareStatement(checkEnrollSql)) {
                 pstmt.setString(1, studentId);
                 pstmt.setString(2, subjectId);
                 if (pstmt.executeQuery().next()) {
                     System.err.println("Enroll Error: Already enrolled");
-                    return false; // ลงไปแล้ว
+                    return false;
                 }
             }
-            // Insert
             try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
                 pstmt.setString(1, studentId);
                 pstmt.setString(2, subjectId);
@@ -1323,7 +1295,6 @@ public boolean addStudent(Student s) {
         }
     }
 
-    // ⭐️ (ใหม่) อัปเดตเกรด
     public boolean updateGrade(int enrollmentId, String grade) {
         String sql = "UPDATE enrollments SET grade = ? WHERE enrollment_id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1337,7 +1308,6 @@ public boolean addStudent(Student s) {
         }
     }
 
-    // ⭐️ (ใหม่) คำนวณ GPAX และอัปเดตตาราง students
     public double calculateAndUpdatStudentGPA(String studentId) {
         ArrayList<EnrollmentRecord> records = getEnrollmentsForStudent(studentId);
         
@@ -1345,7 +1315,6 @@ public boolean addStudent(Student s) {
         int totalCredits = 0;
 
         for (EnrollmentRecord record : records) {
-            // ⭐️ ไม่นำเกรด 'W' (Withdraw) หรือ 'N/A' มาคำนวณ
             if (record.grade != null && !record.grade.equals("W") && !record.grade.equals("N/A")) {
                 double point = gradeToPoint(record.grade);
                 totalPoints += (point * record.credits);
@@ -1355,7 +1324,6 @@ public boolean addStudent(Student s) {
 
         double gpax = (totalCredits == 0) ? 0.0 : (totalPoints / totalCredits);
 
-        // ⭐️ อัปเดตค่า GPAX กลับไปที่ตาราง students
         String sql = "UPDATE students SET gpa = ? WHERE student_id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setDouble(1, gpax);
@@ -1491,7 +1459,7 @@ public boolean addStudent(Student s) {
         Connection conn = null;
         try {
             conn = connect();
-            conn.setAutoCommit(false); // ⭐️ เริ่ม Transaction
+            conn.setAutoCommit(false);
 
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sqlFindStudents)) {
@@ -1526,15 +1494,15 @@ public boolean addStudent(Student s) {
                     }
                 }
             }
-            conn.commit(); // ⭐️ ยืนยัน Transaction
+            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            return -1; // Error
+            return -1;
         } finally {
             if (conn != null) try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
-        return count; // คืนค่าจำนวน Invoice ที่สร้าง
+        return count;
     }
 
     public boolean addPayment(Transaction tx) {
@@ -1615,14 +1583,14 @@ public boolean addStudent(Student s) {
                 aid.invoiceId, 
                 aid.studentId, 
                 aid.amount, 
-                aid.aidType, // e.g., "SCHOLARSHIP"
+                aid.aidType,
                 aid.description
             );
             
             boolean paymentSuccess = addPaymentInternal(tx, conn); 
 
             if (paymentSuccess) {
-                conn.commit(); // ⭐️ ยืนยัน Transaction
+                conn.commit();
                 return true;
             } else {
                 throw new SQLException("Failed to create internal transaction for financial aid.");
@@ -1637,17 +1605,12 @@ public boolean addStudent(Student s) {
         }
     }
 
-    /**
-     * (ใหม่) Helper method สำหรับ addPayment() เพื่อให้ใช้ใน Transaction ได้
-     * (ย้าย Logic จาก addPayment() เดิมมาที่นี่)
-     */
     private boolean addPaymentInternal(Transaction tx, Connection conn) throws SQLException {
         String sqlInsertTx = "INSERT INTO Transactions(invoice_id, student_id, payment_date, amount_paid, payment_method, reference_code) VALUES (?, ?, ?, ?, ?, ?)";
         String sqlCheckInvoice = "SELECT total_amount FROM Invoices WHERE invoice_id = ?";
         String sqlSumPayments = "SELECT SUM(amount_paid) FROM Transactions WHERE invoice_id = ?";
         String sqlUpdateInvoice = "UPDATE Invoices SET status = 'PAID' WHERE invoice_id = ?";
         
-        // 1. เพิ่ม Transaction
         try (PreparedStatement pstmt = conn.prepareStatement(sqlInsertTx)) {
             pstmt.setInt(1, tx.invoiceId);
             pstmt.setString(2, tx.studentId);
@@ -1658,7 +1621,6 @@ public boolean addStudent(Student s) {
             pstmt.executeUpdate();
         }
 
-        // 2. ตรวจสอบว่าจ่ายครบหรือยัง
         double totalDue = 0;
         double totalPaid = 0;
         
@@ -1674,7 +1636,6 @@ public boolean addStudent(Student s) {
             if (rs.next()) totalPaid = rs.getDouble(1);
         }
         
-        // 3. ถ้าครบ, อัปเดตสถานะ Invoice
         if (totalPaid >= totalDue) {
             try (PreparedStatement pstmt = conn.prepareStatement(sqlUpdateInvoice)) {
                 pstmt.setInt(1, tx.invoiceId);
@@ -1684,9 +1645,6 @@ public boolean addStudent(Student s) {
         return true;
     }
 
-    /**
-     * (ใหม่) ดึง Invoice 1 ใบด้วย ID
-     */
     public Invoice getInvoiceById(int invoiceId) {
         String sql = "SELECT * FROM Invoices WHERE invoice_id = ?";
         try (Connection conn = connect();
@@ -1701,7 +1659,7 @@ public boolean addStudent(Student s) {
                 );
             }
         } catch (SQLException e) { e.printStackTrace(); }
-        return null; // ไม่ควรเกิดขึ้นถ้าเรียกถูกต้อง
+        return null;
     }
 
     public ArrayList<InvoiceItem> getInvoiceItems(int invoiceId) {
@@ -1827,9 +1785,6 @@ public boolean addStudent(Student s) {
         
         return new FinancialReport(totalDue, totalPaid, totalTx);
     }
-    /**
-     * (ใหม่) บันทึกการกระทำลง Log
-     */
     public void logActivity(String username, String action) {
         String sql = "INSERT INTO activity_log(log_timestamp, username, action_description) VALUES (?, ?, ?)";
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -1845,9 +1800,6 @@ public boolean addStudent(Student s) {
         }
     }
 
-    /**
-     * (ใหม่) ดึงข้อมูล User ทั้งหมด
-     */
     public ArrayList<UserAccount> getAllUserAccounts() {
         ArrayList<UserAccount> users = new ArrayList<>();
         String sql = "SELECT username, role FROM users";
@@ -1863,12 +1815,8 @@ public boolean addStudent(Student s) {
         return users;
     }
 
-    /**
-     * (ใหม่) ดึงข้อมูล Log ทั้งหมด
-     */
     public ArrayList<ActivityLog> getActivityLogs() {
         ArrayList<ActivityLog> logs = new ArrayList<>();
-        // ดึง 100 รายการล่าสุด
         String sql = "SELECT * FROM activity_log ORDER BY log_id DESC LIMIT 100";
         try (Connection conn = connect();
              Statement stmt = conn.createStatement();
@@ -1887,9 +1835,6 @@ public boolean addStudent(Student s) {
         return logs;
     }
 
-    /**
-     * (ใหม่) Admin รีเซ็ตรหัสผ่าน
-     */
     public boolean resetUserPassword(String username, String newPassword) {
         String hash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
         String sql = "UPDATE users SET password_hash = ? WHERE username = ?";
@@ -1935,7 +1880,7 @@ public boolean addStudent(Student s) {
             
             runSqlInTransaction(conn, "DELETE FROM users WHERE username = ?", new Object[]{username});
 
-            conn.commit(); // ⭐️ ยืนยัน Transaction
+            conn.commit();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1957,7 +1902,6 @@ public boolean addStudent(Student s) {
         }
     }
 
-    // ⭐️ (ใหม่) เพิ่มเมธอดนี้ใน DatabaseManager.java
 public ArrayList<Subject> getSubjectsForTeacher(String teacherId) {
     ArrayList<Subject> subjects = new ArrayList<>();
     String sql = """
@@ -2004,7 +1948,6 @@ public ArrayList<Subject> getSubjectsForTeacher(String teacherId) {
     return subjects;
 }
 
-// ⭐️ (ใหม่) เพิ่มเมธอดนี้ใน DatabaseManager.java
 public ArrayList<EnrollmentRecord> getEnrollmentsForSubject(String subjectId) {
         ArrayList<EnrollmentRecord> records = new ArrayList<>();
         String sql = """
@@ -2031,8 +1974,8 @@ public ArrayList<EnrollmentRecord> getEnrollmentsForSubject(String subjectId) {
                     rs.getInt("credits"),
                     rs.getString("grade")
                 );
-                er.studentId = rs.getString("student_id"); // ⭐️ (แก้)
-                er.studentName = rs.getString("student_name"); // ⭐️ (แก้)
+                er.studentId = rs.getString("student_id");
+                er.studentName = rs.getString("student_name");
                 records.add(er);
             }
         } catch (SQLException e) {
@@ -2167,12 +2110,11 @@ class ActivityLog {
 
 class AssignmentGrade {
     int gradeId;
-    int enrollmentId; // ID ของการลงทะเบียน (เชื่อม student กับ subject)
-    String assignmentName; // เช่น "การบ้าน 1", "สอบกลางภาค"
+    int enrollmentId;
+    String assignmentName;
     double score;
     double maxScore;
 
-    // Constructor สำหรับดึงข้อมูล
     public AssignmentGrade(int gradeId, int enrollmentId, String assignmentName, double score, double maxScore) {
         this.gradeId = gradeId;
         this.enrollmentId = enrollmentId;
@@ -2181,7 +2123,6 @@ class AssignmentGrade {
         this.maxScore = maxScore;
     }
 
-    // Constructor สำหรับสร้างใหม่ (gradeId จะถูกสร้างอัตโนมัติ)
     public AssignmentGrade(int enrollmentId, String assignmentName, double score, double maxScore) {
         this(-1, enrollmentId, assignmentName, score, maxScore);
     }

@@ -3,10 +3,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 
-/**
- * (ไฟล์ใหม่)
- * Dialog สำหรับแสดงรายละเอียด Invoice (อ่านอย่างเดียว)
- */
 public class InvoiceDetailsDialog extends JDialog {
 
     private DatabaseManager dbManager;
@@ -22,19 +18,15 @@ public class InvoiceDetailsDialog extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        // 1. Panel ข้อมูลหลัก (Header)
         JPanel headerPanel = createHeaderPanel(invoiceId, studentName);
         add(headerPanel, BorderLayout.NORTH);
 
-        // 2. ตารางรายการ (Items)
         itemsModel = new DefaultTableModel(new Object[]{"Description", "Amount"}, 0);
         itemsTable = new JTable(itemsModel);
 
-        // 3. ตารางการจ่ายเงิน (Payments)
         paymentsModel = new DefaultTableModel(new Object[]{"Date", "Amount Paid", "Method"}, 0);
         paymentsTable = new JTable(paymentsModel);
 
-        // 4. SplitPane
         JScrollPane itemsPane = new JScrollPane(itemsTable);
         itemsPane.setBorder(BorderFactory.createTitledBorder("Invoice Items"));
         
@@ -45,7 +37,6 @@ public class InvoiceDetailsDialog extends JDialog {
         splitPane.setDividerLocation(200);
         add(splitPane, BorderLayout.CENTER);
 
-        // 5. โหลดข้อมูล
         loadInvoiceDetails(invoiceId);
     }
 
@@ -56,8 +47,7 @@ public class InvoiceDetailsDialog extends JDialog {
         gbc.insets = new Insets(2, 5, 2, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // ดึงข้อมูล Invoice
-        Invoice invoice = dbManager.getInvoiceById(invoiceId); // (เราต้องสร้าง Method นี้)
+        Invoice invoice = dbManager.getInvoiceById(invoiceId);
 
         gbc.gridx = 0; gbc.gridy = 0; panel.add(new JLabel("Student:"));
         gbc.gridx = 1; panel.add(new JLabel("<html><b>" + studentName + "</b></html>"));
@@ -83,16 +73,14 @@ public class InvoiceDetailsDialog extends JDialog {
     }
 
     private void loadInvoiceDetails(int invoiceId) {
-        // 1. โหลด Items
         itemsModel.setRowCount(0);
-        ArrayList<InvoiceItem> items = dbManager.getInvoiceItems(invoiceId); // (เราต้องสร้าง Method นี้)
+        ArrayList<InvoiceItem> items = dbManager.getInvoiceItems(invoiceId);
         for (InvoiceItem item : items) {
             itemsModel.addRow(new Object[]{item.description, item.amount});
         }
 
-        // 2. โหลด Payments
         paymentsModel.setRowCount(0);
-        ArrayList<Transaction> payments = dbManager.getTransactionsForInvoice(invoiceId); // (เราต้องสร้าง Method นี้)
+        ArrayList<Transaction> payments = dbManager.getTransactionsForInvoice(invoiceId);
         for (Transaction tx : payments) {
             paymentsModel.addRow(new Object[]{tx.paymentDate, tx.amountPaid, tx.paymentMethod});
         }

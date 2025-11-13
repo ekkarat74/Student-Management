@@ -46,12 +46,11 @@ public class ClassroomDialog extends JDialog {
 
         gbc.gridx = 0; gbc.gridy = 4; formPanel.add(new JLabel("Classroom Type:"), gbc);
         gbc.gridx = 1; 
-        cbType = new JComboBox<>(ClassroomType.values()); // ⭐️ (ใช้ Enum)
+        cbType = new JComboBox<>(ClassroomType.values());
         formPanel.add(cbType, gbc);
         
         add(formPanel, BorderLayout.CENTER);
 
-        // --- Buttons ---
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveButton = new JButton("Save");
         JButton cancelButton = new JButton("Cancel");
@@ -59,7 +58,6 @@ public class ClassroomDialog extends JDialog {
         buttonPanel.add(cancelButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // --- Logic ---
         saveButton.addActionListener(e -> onSave());
         cancelButton.addActionListener(e -> dispose());
 

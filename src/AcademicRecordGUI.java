@@ -14,7 +14,7 @@ public class AcademicRecordGUI extends JDialog {
     private JLabel gpaLabel;
 
     public AcademicRecordGUI(Frame parent, DatabaseManager dbManager, String studentId, String studentName) {
-        super(parent, "Academic Record: " + studentName, true); // 'true' for modal
+        super(parent, "Academic Record: " + studentName, true);
         this.dbManager = dbManager;
         this.studentId = studentId;
         this.studentName = studentName;
@@ -45,7 +45,7 @@ public class AcademicRecordGUI extends JDialog {
 
         enrollButton.addActionListener(e -> enrollCourse());
         setGradeButton.addActionListener(e -> setGrade());
-        closeButton.addActionListener(e -> dispose()); // ปิดหน้าต่าง
+        closeButton.addActionListener(e -> dispose());
 
         buttonPanel.add(enrollButton);
         buttonPanel.add(setGradeButton);
@@ -83,7 +83,7 @@ public class AcademicRecordGUI extends JDialog {
             boolean success = dbManager.enrollStudentInCourse(this.studentId, subjectId.trim());
             if (success) {
                 JOptionPane.showMessageDialog(this, "Student enrolled successfully in " + subjectId);
-                loadData(); // รีเฟรชตาราง
+                loadData();
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to enroll. Subject ID might be invalid or student is already enrolled.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -98,7 +98,7 @@ public class AcademicRecordGUI extends JDialog {
         }
 
         int modelRow = gradesTable.convertRowIndexToModel(viewRow);
-        int enrollmentId = (int) gradesModel.getValueAt(modelRow, 0); // ID อยู่ Column 0
+        int enrollmentId = (int) gradesModel.getValueAt(modelRow, 0);
         String subjectName = (String) gradesModel.getValueAt(modelRow, 2);
 
         String[] gradeOptions = {"A", "B+", "B", "C+", "C", "D+", "D", "F", "W", "N/A"};
@@ -114,7 +114,7 @@ public class AcademicRecordGUI extends JDialog {
             boolean success = dbManager.updateGrade(enrollmentId, newGrade);
             if (success) {
                 JOptionPane.showMessageDialog(this, "Grade updated successfully.");
-                loadData(); // ⭐️ รีเฟรชตารางและคำนวณ GPAX ใหม่
+                loadData();
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to update grade.", "Database Error", JOptionPane.ERROR_MESSAGE);
             }

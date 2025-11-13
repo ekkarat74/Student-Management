@@ -56,7 +56,6 @@ public class GenerateInvoiceDialog extends JDialog {
     }
 
     private void onGenerate() {
-        // (คุณสามารถเพิ่ม Validation ตรวจสอบ Format วันที่และตัวเลขได้)
         if (getBaseFee() <= 0) {
             JOptionPane.showMessageDialog(this, "Base Fee must be a positive number.", "Error", JOptionPane.ERROR_MESSAGE);
             return;

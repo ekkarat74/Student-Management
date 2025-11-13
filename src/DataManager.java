@@ -49,18 +49,15 @@ public class DataManager {
     public List<Student> loadFromCsv(File f) {
         List<Student> list = new ArrayList<>();
         try (Scanner sc = new Scanner(f, StandardCharsets.UTF_8)) {
-            if (sc.hasNextLine()) sc.nextLine(); // Skip Header
+            if (sc.hasNextLine()) sc.nextLine();
             while (sc.hasNextLine()) {
                 String[] d = sc.nextLine().split(",");
-                // ⭐️⭐️⭐️ (จุดที่แก้ไข) ⭐️⭐️⭐️
                 if (d.length >= 9) {
-                    // ⭐️ แก้ไข: เรียกใช้ 11-arg constructor (ตัด d[8] ที่เป็น dateAdded ออก)
                     list.add(new Student(d[0], d[1], "N/A", "N/A", d[5], "N/A", 
                                          Integer.parseInt(d[2]), Double.parseDouble(d[3]),
                                          Integer.parseInt(d[6].replace("+", "")),
                                          StudentStatus.valueOf(d[7]), d[4]));
                 }
-                // ⭐️⭐️⭐️ (จบจุดที่แก้ไข) ⭐️⭐️⭐️
             }
         } catch (Exception e) { e.printStackTrace(); return null; }
         return list;

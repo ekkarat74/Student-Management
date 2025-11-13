@@ -7,7 +7,7 @@ public class FinanceSummary {
     double totalDue;
     double totalPaid;
     double balance;
-    String status; // "PAID", "PENDING", "OVERDUE"
+    String status;
 
     public FinanceSummary(String studentId, String studentName, double totalDue, double totalPaid) {
         this.studentId = studentId;
@@ -19,7 +19,7 @@ public class FinanceSummary {
         if (this.balance <= 0) {
             this.status = "PAID";
         } else {
-            this.status = "PENDING"; // (คุณสามารถเพิ่ม Logic "OVERDUE" ทีหลังได้)
+            this.status = "PENDING";
         }
     }
 }
@@ -31,7 +31,7 @@ class Invoice {
     String issueDate;
     String dueDate;
     double totalAmount;
-    String status; // PENDING, PAID, CANCELED
+    String status;
 
     public Invoice(int id, String studentId, String semesterId, String issueDate, String dueDate, double totalAmount, String status) {
         this.id = id;
@@ -55,7 +55,7 @@ class Transaction {
     String studentId;
     String paymentDate;
     double amountPaid;
-    String paymentMethod; // ONLINE, COUNTER, TRANSFER
+    String paymentMethod;
     String referenceCode;
 
     public Transaction(int invoiceId, String studentId, double amountPaid, String paymentMethod, String referenceCode) {
@@ -76,8 +76,8 @@ class Transaction {
     int id;
     String studentId;
     String semesterId;
-    int invoiceId; // ⭐️ ใช้เพื่อบอกว่าส่วนลดนี้จะไปหักกับบิลไหน
-    String aidType; // SCHOLARSHIP, DISCOUNT
+    int invoiceId; 
+    String aidType;
     String description;
     double amount;
     String applyDate;
@@ -93,10 +93,6 @@ class Transaction {
     }
 }
 
-/**
- * (ไฟล์ใหม่)
- * คลาส Model สำหรับเก็บรายการย่อยใน Invoice
- */
 class InvoiceItem {
     int id;
     String description;

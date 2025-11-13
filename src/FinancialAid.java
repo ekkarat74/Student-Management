@@ -5,8 +5,8 @@ public class FinancialAid {
     int id;
     String studentId;
     String semesterId;
-    int invoiceId; // ⭐️ ใช้เพื่อบอกว่าส่วนลดนี้จะไปหักกับบิลไหน
-    String aidType; // SCHOLARSHIP, DISCOUNT
+    int invoiceId;
+    String aidType;
     String description;
     double amount;
     String applyDate;

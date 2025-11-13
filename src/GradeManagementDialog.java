@@ -29,14 +29,12 @@ public class GradeManagementDialog extends JDialog {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
         add(titleLabel, BorderLayout.NORTH);
 
-        // --- ตารางคะแนนย่อย ---
         assignmentModel = new DefaultTableModel(new Object[]{"Assignment", "Score", "Max Score"}, 0);
         assignmentTable = new JTable(assignmentModel);
         JScrollPane scrollPane = new JScrollPane(assignmentTable);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Assignment Scores"));
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- Panel ปุ่มด้านขวา (สำหรับตาราง) ---
         JPanel tableButtonPanel = new JPanel(new GridLayout(3, 1, 5, 5));
         JButton btnAddScore = new JButton("Add Score");
         JButton btnEditScore = new JButton("Edit Score");
@@ -46,7 +44,6 @@ public class GradeManagementDialog extends JDialog {
         tableButtonPanel.add(btnDeleteScore);
         add(tableButtonPanel, BorderLayout.EAST);
 
-        // --- Panel ด้านล่าง (สำหรับเกรด) ---
         JPanel finalGradePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         finalGradePanel.setBorder(BorderFactory.createTitledBorder("Final Grade"));
         finalGradePanel.add(new JLabel("Final Grade (e.g., A, B+):"));
@@ -56,13 +53,11 @@ public class GradeManagementDialog extends JDialog {
         finalGradePanel.add(btnSaveFinalGrade);
         add(finalGradePanel, BorderLayout.SOUTH);
 
-        // --- Action Listeners ---
         btnAddScore.addActionListener(e -> addScore());
         btnEditScore.addActionListener(e -> editScore());
         btnDeleteScore.addActionListener(e -> deleteScore());
         btnSaveFinalGrade.addActionListener(e -> saveFinalGrade());
 
-        // --- โหลดข้อมูล ---
         loadAssignmentGrades();
     }
 
